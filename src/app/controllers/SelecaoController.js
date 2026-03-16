@@ -1,96 +1,70 @@
-import conexao from "../database/index.js"
+import SelecaoService from '../services/SelecaoService.js'
 
 class SelecaoController {
-
-    async executarQuery(sql, valores = []) {
-        try {
-            const [rows] = await conexao.query(sql, valores)
-            return rows
-        } catch (erro) {
-            console.error('Erro na query:', erro)
-            throw erro
-        }
-    }
-
-    //Listar tudo
     async index(req, res) {
-        const sql = "SELECT * FROM dbselecao.dbcopa"
         try {
-
-            const resultado = await this.executarQuery(sql)
-            res.status(200).json(resultado)
-
+            const selecoes = await SelecaoService.listarSelecoes()
+            return res.status(200).json(selecoes)
         } catch (erro) {
-
-            res.status(500).json({ erro: "Erro ao buscar seleções" })
-
+            console.error('Erro ao buscar seleções:', erro)
+            return res.status(500).json({ erro: 'Erro ao buscar seleções' })
         }
-
     }
 
-    // Listar por id
     async show(req, res) {
-
-        const id = req.params.id
-        const sql = "SELECT * FROM dbselecao.dbcopa WHERE id=?"
-
         try {
-            const resultado = await this.executarQuery(sql, [id])
-            res.status(200).json(resultado)
-        } catch (erro) {
-            console.log(erro)
-            res.status(500).json({ erro: "Erro ao encontrar seleção" })
+            const selecao = await SelecaoService.buscarSelecaoPorId(req.params.id)
 
+            if (!selecao) {
+                return res.status(404).json({ erro: 'Seleção não encontrada' })
+            }
+
+            return res.status(200).json(selecao)
+        } catch (erro) {
+            console.error('Erro ao buscar seleção por id:', erro)
+            return res.status(500).json({ erro: 'Erro ao buscar seleção' })
         }
     }
 
-    // Criar dados
     async store(req, res) {
-        const params = req.body
-        const sql = "INSERT INTO dbselecao.dbcopa SET ?;"
-
         try {
-            const resultado = await this.executarQuery(sql, [params])
-            res.status(201).json(resultado)
+            const novaSelecao = await SelecaoService.criarSelecao(req.body)
+            return res.status(201).json(novaSelecao)
         } catch (erro) {
-            console.log(erro)
-            res.status(500).json({ erro: "Erro ao inserir seleção" })
+            console.error('Erro ao criar seleção:', erro)
+            return res.status(erro.statusCode || 500).json({ erro: erro.message || 'Erro ao inserir seleção' })
         }
-
-
     }
 
-
-    // Atualizar dados
     async update(req, res) {
-        const id = req.params.id
-        const params = req.body
-        const sql = "UPDATE dbselecao.dbcopa SET ? WHERE id = ?;"
         try {
-            const resultado = await this.executarQuery(sql, [params, id])
-            res.status(201).json(resultado)
+            const selecaoAtualizada = await SelecaoService.atualizarSelecao(req.params.id, req.body)
+
+            if (!selecaoAtualizada) {
+                return res.status(404).json({ erro: 'Seleção não encontrada' })
+            }
+
+            return res.status(200).json(selecaoAtualizada)
         } catch (erro) {
-            console.log(erro)
-            res.status(500).json({ erro: "Erro ao atualizar seleção" })
+            console.error('Erro ao atualizar seleção:', erro)
+            return res.status(erro.statusCode || 500).json({ erro: erro.message || 'Erro ao atualizar seleção' })
         }
-
-
-
     }
 
-    // Deletar dados
     async delete(req, res) {
-        const id = req.params.id
-        const sql = "DELETE FROM dbselecao.dbcopa WHERE id=?"
         try {
-            const resultado = await this.executarQuery(sql, [id])
-            res.status(201).json(resultado)
+            const removido = await SelecaoService.removerSelecao(req.params.id)
+
+            if (!removido) {
+                return res.status(404).json({ erro: 'Seleção não encontrada' })
+            }
+
+            return res.status(204).send()
         } catch (erro) {
-            console.log(erro)
-            res.status(500).json({ erro: "Erro ao deletar seleção" })
+            console.error('Erro ao deletar seleção:', erro)
+            return res.status(500).json({ erro: 'Erro ao deletar seleção' })
         }
     }
-
 }
-// Padrão singleton
+
 export default new SelecaoController()

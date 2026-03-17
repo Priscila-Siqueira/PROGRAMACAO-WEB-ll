@@ -3,8 +3,6 @@
 ## Para iniciar o projeto:
 npm init -y
 
-## Para iniciar o projeto
-
 ## Instalar o express
 npm install express --save
 --save serve para adicionar as dependencias do pacote express no seu package.json

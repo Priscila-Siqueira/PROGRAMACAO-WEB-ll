@@ -13,6 +13,12 @@ class SelecaoRepository {
         return rows[0] ?? null
     }
 
+    async findByGrupo(grupo) {
+        const sql = 'SELECT * FROM dbselecao.dbcopa WHERE grupo = ?'
+        const [rows] = await conexao.query(sql, [grupo])
+        return rows
+    }
+
     async create(data) {
         const sql = 'INSERT INTO dbselecao.dbcopa SET ?'
         const [result] = await conexao.query(sql, [data])

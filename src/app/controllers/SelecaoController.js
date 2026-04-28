@@ -26,6 +26,20 @@ class SelecaoController {
         }
     }
 
+    async findByGrupo(req, res) {
+        try {
+            const selecoes = await SelecaoService.buscarSelecoesPorGrupo(req.params.grupo)
+            return res.status(200).json(selecoes)
+        } catch (erro) {
+            if (erro.statusCode === 400) {
+                return res.status(400).json({ erro: erro.message })
+            }
+
+            console.error('Erro ao buscar seleções por grupo:', erro)
+            return res.status(500).json({ erro: erro.message || 'Erro ao buscar seleções por grupo' })
+        }
+    }
+
     async store(req, res) {
         try {
             const novaSelecao = await SelecaoService.criarSelecao(req.body)

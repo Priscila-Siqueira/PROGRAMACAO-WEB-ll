@@ -9,6 +9,16 @@ class SelecaoService {
         return SelecaoRepository.findById(id)
     }
 
+    async buscarSelecoesPorGrupo(grupo) {
+        if (!grupo || !grupo.trim()) {
+            const erro = new Error('O parâmetro grupo é obrigatório.')
+            erro.statusCode = 400
+            throw erro
+        }
+
+        return SelecaoRepository.findByGrupo(grupo)
+    }
+
     async criarSelecao(data) {
         this.validarPayload(data)
         return SelecaoRepository.create(data)
